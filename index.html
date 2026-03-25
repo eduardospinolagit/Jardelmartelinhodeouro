@@ -5,28 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jardes Martelinho de Ouro | Brusque/SC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --gold: #F5C800;
     --gold-dark: #C9A200;
+    --gold-light: #FFD740;
     --black: #0D0D0D;
-    --gray-dark: #1A1A1A;
-    --gray: #2A2A2A;
+    --gray-dark: #141414;
+    --gray: #1E1E1E;
+    --gray-mid: #2A2A2A;
     --white: #F5F5F0;
-    --text-muted: #999;
+    --text-muted: #888;
+    --green: #25D366;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
-
   body {
     font-family: 'Barlow', sans-serif;
     background: var(--black);
     color: var(--white);
     overflow-x: hidden;
   }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
 
   /* ===== NAVBAR ===== */
   nav {
@@ -36,45 +42,91 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 40px;
-    background: rgba(13,13,13,0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 2px solid var(--gold);
+    padding: 14px 40px;
+    transition: all 0.3s;
+    background: rgba(13,13,13,0);
+    backdrop-filter: blur(0px);
   }
 
-  .nav-logo {
-    display: flex;
-    align-items: center;
+  nav.scrolled {
+    background: rgba(13,13,13,0.97);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(245,200,0,0.2);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    padding: 10px 40px;
   }
 
   .nav-logo img {
-    height: 56px;
+    height: 54px;
     width: auto;
     display: block;
     filter: drop-shadow(0 2px 8px rgba(245,200,0,0.3));
+    transition: height 0.3s;
+  }
+  nav.scrolled .nav-logo img { height: 42px; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
   }
 
-  @media (max-width: 480px) {
-    .nav-logo img { height: 42px; }
-    nav { padding: 12px 16px; }
-    .nav-cta { font-size: 12px; padding: 9px 14px; }
+  .nav-links a {
+    color: rgba(245,245,240,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
   }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+  .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+
+  .nav-right { display: flex; align-items: center; gap: 16px; }
 
   .nav-cta {
     background: var(--gold);
     color: var(--black);
-    font-family: 'Barlow', sans-serif;
     font-weight: 700;
-    font-size: 14px;
-    padding: 10px 22px;
+    font-size: 13px;
+    padding: 10px 20px;
     border-radius: 4px;
     text-decoration: none;
     letter-spacing: 0.5px;
     transition: all 0.2s;
     white-space: nowrap;
   }
-
   .nav-cta:hover { background: var(--gold-dark); transform: translateY(-1px); }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.3s;
+  }
 
   /* ===== HERO ===== */
   #hero {
@@ -83,16 +135,6 @@
     align-items: center;
     position: relative;
     overflow: hidden;
-    padding-top: 0;
-  }
-
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    background: 
-      linear-gradient(135deg, rgba(245,200,0,0.08) 0%, transparent 50%),
-      linear-gradient(to bottom, rgba(13,13,13,0.3) 0%, rgba(13,13,13,0.85) 60%, var(--black) 100%);
-    z-index: 1;
   }
 
   .hero-bg-img {
@@ -101,15 +143,56 @@
     background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80');
     background-size: cover;
     background-position: center;
-    filter: brightness(0.35) saturate(0.8);
+    filter: brightness(0.3) saturate(0.7);
+    transform: scale(1.05);
+    animation: heroZoom 20s ease-in-out infinite alternate;
   }
 
-  .hero-stripe {
+  @keyframes heroZoom {
+    from { transform: scale(1.05); }
+    to { transform: scale(1.0); }
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, rgba(245,200,0,0.06) 0%, transparent 50%),
+      linear-gradient(to bottom, rgba(13,13,13,0.2) 0%, rgba(13,13,13,0.7) 60%, var(--black) 100%);
+  }
+
+  /* Animated particles */
+  .hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat linear infinite;
+  }
+
+  @keyframes particleFloat {
+    0% { opacity: 0; transform: translateY(100vh) scale(0); }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.2; }
+    100% { opacity: 0; transform: translateY(-100px) scale(1); }
+  }
+
+  .hero-accent-line {
     position: absolute;
     top: 0; bottom: 0;
     right: 0;
-    width: 6px;
-    background: var(--gold);
+    width: 5px;
+    background: linear-gradient(to bottom, transparent, var(--gold), transparent);
     z-index: 2;
   }
 
@@ -118,7 +201,7 @@
     z-index: 3;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 92px 40px 60px;
+    padding: 100px 40px 60px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 60px;
@@ -130,49 +213,83 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(245,200,0,0.15);
-    border: 1px solid var(--gold);
+    background: rgba(245,200,0,0.12);
+    border: 1px solid rgba(245,200,0,0.4);
     padding: 6px 16px;
     border-radius: 100px;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     color: var(--gold);
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin-bottom: 20px;
-    animation: fadeInUp 0.6s ease both;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease 0.3s both;
+  }
+
+  .hero-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: dotBlink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes dotBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
   }
 
   .hero-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(52px, 6vw, 86px);
-    line-height: 0.95;
+    font-size: clamp(54px, 6.5vw, 92px);
+    line-height: 0.92;
     color: var(--white);
-    animation: fadeInUp 0.6s ease 0.1s both;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease 0.4s both;
   }
 
   .hero-title .gold { color: var(--gold); }
-
-  .hero-title .stroke {
-    -webkit-text-stroke: 2px var(--white);
+  .hero-title .outline {
+    -webkit-text-stroke: 2px rgba(245,245,240,0.5);
     color: transparent;
+  }
+
+  .hero-tagline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease 0.5s both;
+  }
+
+  .hero-tagline-line { flex: 1; height: 1px; background: rgba(245,200,0,0.3); }
+  .hero-tagline-text {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    white-space: nowrap;
   }
 
   .hero-subtitle {
     margin-top: 20px;
-    font-size: 18px;
-    color: rgba(245,245,240,0.75);
-    line-height: 1.6;
-    max-width: 480px;
-    animation: fadeInUp 0.6s ease 0.2s both;
+    font-size: 17px;
+    color: rgba(245,245,240,0.72);
+    line-height: 1.7;
+    max-width: 460px;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease 0.6s both;
   }
 
   .hero-actions {
     display: flex;
-    gap: 16px;
+    gap: 14px;
     margin-top: 36px;
     flex-wrap: wrap;
-    animation: fadeInUp 0.6s ease 0.3s both;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease 0.7s both;
   }
 
   .btn-primary {
@@ -181,121 +298,234 @@
     gap: 10px;
     background: var(--gold);
     color: var(--black);
-    font-weight: 700;
-    font-size: 15px;
-    padding: 16px 30px;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 16px 28px;
     border-radius: 6px;
     text-decoration: none;
     transition: all 0.25s;
     letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
   }
 
-  .btn-primary:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,200,0,0.35); }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.15);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 35px rgba(245,200,0,0.4); }
 
   .btn-secondary {
     display: inline-flex;
     align-items: center;
     gap: 10px;
     background: transparent;
-    border: 2px solid rgba(245,245,240,0.3);
+    border: 2px solid rgba(245,245,240,0.25);
     color: var(--white);
     font-weight: 600;
-    font-size: 15px;
-    padding: 14px 28px;
+    font-size: 14px;
+    padding: 14px 26px;
     border-radius: 6px;
     text-decoration: none;
     transition: all 0.25s;
   }
-
   .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  .hero-right {
+    opacity: 0;
+    animation: fadeInRight 0.8s ease 0.5s both;
+  }
+
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
 
   .hero-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    animation: fadeInUp 0.6s ease 0.4s both;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 
   .stat-box {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(245,200,0,0.2);
-    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(245,200,0,0.15);
+    border-radius: 12px;
     padding: 28px 20px;
     text-align: center;
     transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
   }
 
-  .stat-box:hover { border-color: var(--gold); background: rgba(245,200,0,0.08); transform: translateY(-4px); }
+  .stat-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(245,200,0,0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat-box:hover { border-color: rgba(245,200,0,0.5); transform: translateY(-4px); }
+  .stat-box:hover::before { opacity: 1; }
 
   .stat-number {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px;
+    font-size: 52px;
     color: var(--gold);
     line-height: 1;
   }
 
   .stat-label {
-    font-size: 13px;
+    font-size: 11px;
     color: var(--text-muted);
     margin-top: 6px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+  }
+
+  .stat-box.full { grid-column: span 2; }
+
+  /* ===== TRUST BAR ===== */
+  .trust-bar {
+    background: var(--gold);
+    padding: 14px 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .trust-bar-track {
+    display: flex;
+    gap: 60px;
+    animation: scrollTrack 25s linear infinite;
+    width: max-content;
+  }
+
+  .trust-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--black);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .trust-bar-dot {
+    width: 6px; height: 6px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+  }
+
+  @keyframes scrollTrack {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
 
   /* ===== SECTIONS SHARED ===== */
   section { padding: 100px 40px; }
-
   .section-inner { max-width: 1200px; margin: 0 auto; }
 
   .section-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 3px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3.5px;
     text-transform: uppercase;
     color: var(--gold);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 14px;
   }
 
   .section-label::before {
     content: '';
     display: block;
-    width: 30px;
+    width: 28px;
     height: 2px;
     background: var(--gold);
+    flex-shrink: 0;
   }
 
   .section-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(40px, 4.5vw, 64px);
+    font-size: clamp(38px, 4vw, 60px);
     line-height: 1;
     margin-bottom: 16px;
   }
 
   .section-title .gold { color: var(--gold); }
 
+  /* ===== REVEAL ANIMATION ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
   /* ===== ANTES & DEPOIS ===== */
   #antes-depois {
-    background: var(--black);
-    padding: 100px 40px;
+    background: var(--gray-dark);
+    position: relative;
+  }
+
+  #antes-depois::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
   }
 
   .antes-depois-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 56px;
   }
 
   .slider-wrapper {
-    max-width: 800px;
+    max-width: 840px;
     margin: 0 auto;
     position: relative;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
-    border: 2px solid rgba(245,200,0,0.25);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.7);
+    border: 2px solid rgba(245,200,0,0.2);
     cursor: ew-resize;
     user-select: none;
     touch-action: none;
@@ -304,12 +534,11 @@
   .slider-wrapper img {
     display: block;
     width: 100%;
-    height: 480px;
+    height: 500px;
     object-fit: cover;
     pointer-events: none;
   }
 
-  /* ANTES = fundo (esquerda), DEPOIS = overlay (direita) */
   .slider-before {
     position: absolute;
     inset: 0;
@@ -321,10 +550,8 @@
 
   .slider-before img {
     position: absolute;
-    top: 0;
-    right: 0;
-    left: auto;
-    width: 800px;
+    top: 0; right: 0; left: auto;
+    width: 840px;
     max-width: none;
     height: 100%;
     object-fit: cover;
@@ -337,7 +564,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: 3px;
-    background: var(--white);
+    background: rgba(255,255,255,0.9);
     z-index: 10;
     display: flex;
     align-items: center;
@@ -346,88 +573,59 @@
 
   .slider-btn {
     position: absolute;
-    width: 54px;
-    height: 54px;
-    background: var(--white);
+    width: 52px; height: 52px;
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 24px rgba(0,0,0,0.5);
     z-index: 11;
-    color: var(--black);
     animation: btnPulse 2s ease-in-out infinite;
   }
 
-  .slider-btn svg { stroke: var(--black); stroke-width: 2.5; fill: none; width: 22px; height: 22px; }
+  .slider-btn svg { stroke: var(--black); stroke-width: 2.5; fill: none; width: 20px; height: 20px; }
 
   @keyframes btnPulse {
     0%, 100% { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 0 rgba(255,255,255,0.4); }
-    50%       { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 14px rgba(255,255,255,0); }
+    50% { box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 14px rgba(255,255,255,0); }
   }
 
-  /* ===== LABELS ===== */
   .slider-label {
     position: absolute;
-    bottom: 24px;
+    bottom: 22px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     letter-spacing: 2.5px;
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 8px 16px;
+    border-radius: 6px;
     pointer-events: none;
     z-index: 5;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
   }
 
-  .label-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
+  .label-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
   .dot-red {
     background: #FF4444;
     box-shadow: 0 0 0 3px rgba(255,68,68,0.3);
     animation: dotPulse 1.5s ease-in-out infinite;
   }
-
   .dot-green {
     background: #44CC66;
     box-shadow: 0 0 0 3px rgba(68,204,102,0.3);
-    animation: dotPulse 1.5s ease-in-out infinite;
-    animation-delay: 0.75s;
+    animation: dotPulse 1.5s ease-in-out infinite 0.75s;
   }
 
   @keyframes dotPulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50%       { transform: scale(1.4); opacity: 0.7; }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
   }
 
-  /* ANTES — esquerda, fundo escuro-avermelhado */
-  .label-antes {
-    left: 20px;
-    background: rgba(20, 10, 10, 0.82);
-    color: #FFD0D0;
-    border: 1px solid rgba(255, 68, 68, 0.5);
-  }
-
-  /* DEPOIS — direita, fundo dourado */
-  .label-depois {
-    right: 20px;
-    left: auto;
-    background: rgba(245,200,0,0.92);
-    color: var(--black);
-    border: 1px solid rgba(255,255,255,0.2);
-  }
-
-  .label-depois .dot-green {
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
-  }
+  .label-antes { left: 18px; background: rgba(20,10,10,0.85); color: #FFD0D0; border: 1px solid rgba(255,68,68,0.4); }
+  .label-depois { right: 18px; left: auto; background: rgba(245,200,0,0.95); color: var(--black); }
 
   .slider-hint {
     text-align: center;
@@ -440,15 +638,11 @@
     gap: 10px;
     animation: hintBounce 2s ease-in-out infinite;
   }
-
-  @keyframes hintBounce {
-    0%, 100% { opacity: 0.5; }
-    50%       { opacity: 1; }
-  }
+  @keyframes hintBounce { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
   /* ===== SERVICES ===== */
   #servicos {
-    background: var(--gray-dark);
+    background: var(--black);
     position: relative;
   }
 
@@ -457,77 +651,178 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--gold), var(--gold-dark), var(--gold));
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold), var(--gold-dark));
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+  }
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: 0 0; }
   }
 
   .services-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 60px;
+    margin-bottom: 56px;
     gap: 40px;
     flex-wrap: wrap;
   }
 
   .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 20px;
   }
 
   .service-card {
     background: var(--gray);
-    border: 1px solid rgba(245,200,0,0.1);
-    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
     padding: 36px 28px;
-    transition: all 0.3s;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    cursor: default;
+  }
+
+  .service-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s;
   }
 
   .service-card::before {
     content: '';
     position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--gold);
-    transform: scaleX(0);
-    transition: transform 0.3s;
+    top: -50%; right: -50%;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(245,200,0,0.06), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.35s;
   }
 
-  .service-card:hover::before { transform: scaleX(1); }
-  .service-card:hover { border-color: rgba(245,200,0,0.35); transform: translateY(-6px); }
+  .service-card:hover { border-color: rgba(245,200,0,0.3); transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+  .service-card:hover::after { transform: scaleX(1); }
+  .service-card:hover::before { opacity: 1; }
 
   .service-icon {
-    width: 54px;
-    height: 54px;
-    background: rgba(245,200,0,0.12);
-    border-radius: 10px;
+    width: 52px; height: 52px;
+    background: rgba(245,200,0,0.1);
+    border: 1px solid rgba(245,200,0,0.2);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
     margin-bottom: 20px;
+    transition: all 0.3s;
   }
+
+  .service-card:hover .service-icon {
+    background: rgba(245,200,0,0.18);
+    border-color: var(--gold);
+  }
+
+  .service-icon svg { width: 24px; height: 24px; stroke: var(--gold); fill: none; stroke-width: 2; }
 
   .service-name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
+    font-size: 24px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    color: var(--white);
+    transition: color 0.3s;
+  }
+
+  .service-card:hover .service-name { color: var(--gold); }
+
+  .service-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.75;
+  }
+
+  /* ===== COMO FUNCIONA (NEW) ===== */
+  #processo {
+    background: var(--gray-dark);
+    position: relative;
+  }
+
+  .processo-header { text-align: center; margin-bottom: 64px; }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .steps-grid::before {
+    content: '';
+    position: absolute;
+    top: 32px;
+    left: 12.5%;
+    right: 12.5%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-dark), var(--gold));
+    background-size: 200% 100%;
+    animation: shimmer 3s linear infinite;
+    z-index: 0;
+  }
+
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-num {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 6px rgba(245,200,0,0.15);
+    transition: all 0.3s;
+  }
+
+  .step-item:hover .step-num {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(245,200,0,0.15), 0 8px 30px rgba(245,200,0,0.4);
+  }
+
+  .step-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
     letter-spacing: 1px;
     margin-bottom: 10px;
     color: var(--white);
   }
 
-  .service-desc {
-    font-size: 14px;
+  .step-desc {
+    font-size: 13px;
     color: var(--text-muted);
     line-height: 1.7;
   }
 
   /* ===== SOBRE ===== */
-  #sobre {
-    background: var(--black);
-  }
+  #sobre { background: var(--black); }
 
   .sobre-grid {
     display: grid;
@@ -536,48 +831,55 @@
     align-items: center;
   }
 
-  .sobre-img-wrapper {
-    position: relative;
-  }
+  .sobre-img-wrapper { position: relative; }
 
   .sobre-img {
     width: 100%;
-    border-radius: 12px;
-    object-fit: cover;
-    height: 480px;
+    border-radius: 16px;
+    height: 500px;
     display: block;
     background: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80') center/cover;
-    filter: brightness(0.85);
+    filter: brightness(0.85) saturate(0.9);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sobre-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 2px solid rgba(245,200,0,0.15);
   }
 
   .sobre-img-badge {
     position: absolute;
-    bottom: -20px;
-    right: -20px;
+    bottom: -24px;
+    right: -24px;
     background: var(--gold);
     color: var(--black);
-    border-radius: 10px;
-    padding: 20px 28px;
+    border-radius: 12px;
+    padding: 22px 30px;
     text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 14px 50px rgba(0,0,0,0.5);
+    z-index: 2;
   }
 
   .sobre-img-badge .big {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 52px;
+    font-size: 58px;
     line-height: 1;
   }
-
   .sobre-img-badge .small {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
 
   .sobre-content p {
-    color: rgba(245,245,240,0.75);
-    line-height: 1.8;
+    color: rgba(245,245,240,0.72);
+    line-height: 1.85;
     font-size: 16px;
     margin-bottom: 20px;
   }
@@ -594,21 +896,24 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--white);
   }
 
-  .sobre-list li::before {
-    content: '▶';
-    color: var(--gold);
-    font-size: 11px;
+  .sobre-list li svg {
+    flex-shrink: 0;
+    stroke: var(--gold);
+    fill: none;
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
   }
 
   /* ===== MARTELINHO ===== */
   #martelinho {
     background: var(--gold);
-    padding: 80px 40px;
+    padding: 90px 40px;
   }
 
   .martelinho-inner {
@@ -625,10 +930,35 @@
   #martelinho .section-title { color: var(--black); }
 
   #martelinho p {
-    color: rgba(0,0,0,0.75);
-    line-height: 1.8;
+    color: rgba(0,0,0,0.72);
+    line-height: 1.85;
     font-size: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .martelinho-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .martelinho-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.8);
+  }
+
+  .martelinho-feature svg {
+    flex-shrink: 0;
+    stroke: rgba(0,0,0,0.7);
+    fill: none;
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
   }
 
   #martelinho .btn-primary {
@@ -636,36 +966,53 @@
     color: var(--gold);
     margin-top: 10px;
   }
-
-  #martelinho .btn-primary:hover { background: #111; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  #martelinho .btn-primary:hover { background: #111; box-shadow: 0 10px 35px rgba(0,0,0,0.35); }
 
   .martelinho-img {
     width: 100%;
-    height: 420px;
-    object-fit: cover;
-    border-radius: 12px;
+    height: 440px;
+    border-radius: 16px;
     background: url('https://images.unsplash.com/photo-1617654112368-307921291f42?w=800&q=80') center/cover;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  .martelinho-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.1), transparent);
   }
 
   /* ===== HORÁRIO ===== */
   #horario {
     background: var(--gray-dark);
-    padding: 80px 40px;
+    padding: 90px 40px;
   }
 
   .horario-inner {
-    max-width: 800px;
+    max-width: 820px;
     margin: 0 auto;
     text-align: center;
   }
 
   .horario-card {
     background: var(--gray);
-    border: 1px solid rgba(245,200,0,0.2);
-    border-radius: 16px;
-    padding: 48px;
+    border: 1px solid rgba(245,200,0,0.15);
+    border-radius: 20px;
+    padding: 52px;
     margin-top: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .horario-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
   }
 
   .horario-grid {
@@ -692,62 +1039,163 @@
   }
 
   .horario-time {
-    font-size: 16px;
+    font-size: 17px;
     color: var(--white);
     line-height: 2;
     font-weight: 600;
   }
 
   .horario-closed {
-    background: rgba(245,200,0,0.07);
-    border: 1px solid rgba(245,200,0,0.15);
-    border-radius: 8px;
-    padding: 16px;
+    background: rgba(245,200,0,0.06);
+    border: 1px solid rgba(245,200,0,0.12);
+    border-radius: 10px;
+    padding: 16px 24px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text-muted);
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+  }
+
+  /* ===== FAQ (NEW) ===== */
+  #faq {
+    background: var(--black);
+    padding: 100px 40px;
+  }
+
+  .faq-inner {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .faq-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    gap: 20px;
+    transition: color 0.2s;
+    list-style: none;
+  }
+
+  .faq-question:hover { color: var(--gold); }
+
+  .faq-icon {
+    width: 30px;
+    height: 30px;
+    background: rgba(245,200,0,0.1);
+    border: 1px solid rgba(245,200,0,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .faq-icon svg {
+    stroke: var(--gold);
+    fill: none;
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+    transition: transform 0.3s;
+  }
+
+  .faq-item.open .faq-icon {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .faq-item.open .faq-icon svg {
+    stroke: var(--black);
+    transform: rotate(45deg);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0, 1, 0, 1), padding 0.3s;
+    padding: 0 0;
+  }
+
+  .faq-answer-inner {
+    padding-bottom: 24px;
+    font-size: 15px;
+    color: rgba(245,245,240,0.68);
+    line-height: 1.8;
+  }
+
+  .faq-item.open .faq-answer {
+    max-height: 400px;
+    transition: max-height 0.5s ease-in-out;
   }
 
   /* ===== AVALIAÇÕES ===== */
   #avaliacoes {
-    background: var(--black);
+    background: var(--gray-dark);
+    position: relative;
   }
 
-  .avaliacoes-header { text-align: center; margin-bottom: 60px; }
+  .avaliacoes-header { text-align: center; margin-bottom: 56px; }
 
   .google-rating {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: var(--gray-dark);
+    background: rgba(255,255,255,0.04);
     border: 1px solid rgba(245,200,0,0.2);
     border-radius: 100px;
     padding: 10px 24px;
     margin-bottom: 20px;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
   }
 
-  .stars { color: var(--gold); font-size: 18px; letter-spacing: 2px; }
+  .stars { color: var(--gold); font-size: 17px; letter-spacing: 2px; }
 
   .reviews-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
+    gap: 20px;
   }
 
   .review-card {
-    background: var(--gray-dark);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 14px;
+    background: var(--gray);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
     padding: 28px;
     transition: all 0.3s;
+    position: relative;
   }
 
-  .review-card:hover { border-color: rgba(245,200,0,0.2); transform: translateY(-4px); }
+  .review-card::before {
+    content: '"';
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    font-size: 80px;
+    font-family: Georgia, serif;
+    color: rgba(245,200,0,0.1);
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  .review-card:hover { border-color: rgba(245,200,0,0.2); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
 
   .review-top {
     display: flex;
@@ -757,14 +1205,13 @@
   }
 
   .reviewer-avatar {
-    width: 44px;
-    height: 44px;
+    width: 44px; height: 44px;
     border-radius: 50%;
     background: var(--gold);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 18px;
     color: var(--black);
     flex-shrink: 0;
@@ -772,21 +1219,23 @@
 
   .reviewer-name { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
   .review-date { font-size: 12px; color: var(--text-muted); }
-  .review-stars { color: var(--gold); font-size: 14px; margin-bottom: 12px; }
-  .review-text { font-size: 14px; color: rgba(245,245,240,0.8); line-height: 1.7; }
+  .review-stars { color: var(--gold); font-size: 13px; letter-spacing: 2px; margin-bottom: 14px; }
+  .review-text { font-size: 14px; color: rgba(245,245,240,0.75); line-height: 1.75; }
 
   .google-badge {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
     font-size: 12px;
     color: var(--text-muted);
   }
 
   .google-g {
     font-weight: 900;
-    font-size: 15px;
+    font-size: 14px;
     background: linear-gradient(135deg, #4285F4, #EA4335, #FBBC05, #34A853);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -795,15 +1244,15 @@
 
   /* ===== MAPA ===== */
   #localizacao {
-    background: var(--gray-dark);
-    padding: 80px 40px;
+    background: var(--black);
+    padding: 100px 40px;
   }
 
   .localizacao-inner {
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
+    grid-template-columns: 1fr 1.6fr;
     gap: 60px;
     align-items: start;
   }
@@ -818,22 +1267,28 @@
   }
 
   .info-icon {
-    width: 46px;
-    height: 46px;
-    background: rgba(245,200,0,0.12);
-    border-radius: 10px;
+    width: 48px; height: 48px;
+    background: rgba(245,200,0,0.1);
+    border: 1px solid rgba(245,200,0,0.2);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
     flex-shrink: 0;
   }
 
+  .info-icon svg {
+    width: 22px; height: 22px;
+    stroke: var(--gold);
+    fill: none;
+    stroke-width: 2;
+  }
+
   .info-label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--gold);
-    font-weight: 700;
-    letter-spacing: 1.5px;
+    font-weight: 800;
+    letter-spacing: 2px;
     text-transform: uppercase;
     margin-bottom: 4px;
   }
@@ -842,20 +1297,23 @@
     font-size: 16px;
     color: var(--white);
     font-weight: 600;
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
+  .info-value a { color: inherit; text-decoration: none; transition: color 0.2s; }
+  .info-value a:hover { color: var(--gold); }
+
   .map-wrapper {
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     border: 2px solid rgba(245,200,0,0.2);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.4);
   }
 
   .map-wrapper iframe {
     display: block;
     width: 100%;
-    height: 420px;
+    height: 440px;
     border: none;
     filter: invert(90%) hue-rotate(180deg);
   }
@@ -863,7 +1321,7 @@
   /* ===== CTA FINAL ===== */
   #cta {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-    padding: 100px 40px;
+    padding: 110px 40px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -873,8 +1331,8 @@
     content: 'JARDES';
     position: absolute;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 320px;
-    color: rgba(0,0,0,0.06);
+    font-size: 300px;
+    color: rgba(0,0,0,0.05);
     letter-spacing: -10px;
     top: 50%; left: 50%;
     transform: translate(-50%,-50%);
@@ -883,89 +1341,245 @@
   }
 
   #cta .section-title {
-    font-size: clamp(40px, 5vw, 72px);
+    font-size: clamp(40px, 5vw, 70px);
     color: var(--black);
     position: relative;
+    line-height: 1.05;
   }
 
   #cta p {
     font-size: 18px;
-    color: rgba(0,0,0,0.7);
+    color: rgba(0,0,0,0.65);
     margin: 20px auto 40px;
-    max-width: 540px;
+    max-width: 520px;
+    position: relative;
+    line-height: 1.7;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
     position: relative;
   }
 
   #cta .btn-primary {
-    font-size: 17px;
-    padding: 18px 40px;
-    position: relative;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    font-size: 16px;
+    padding: 18px 36px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    background: var(--black);
+    color: var(--gold);
   }
+  #cta .btn-primary:hover { background: #111; box-shadow: 0 14px 50px rgba(0,0,0,0.35); }
 
-  #cta .btn-primary:hover { box-shadow: 0 12px 50px rgba(0,0,0,0.35); }
+  #cta .btn-secondary {
+    border-color: rgba(0,0,0,0.25);
+    color: rgba(0,0,0,0.8);
+    font-size: 16px;
+    padding: 16px 34px;
+  }
+  #cta .btn-secondary:hover { border-color: rgba(0,0,0,0.6); color: var(--black); }
 
   /* ===== FOOTER ===== */
   footer {
     background: #080808;
-    padding: 40px;
-    border-top: 2px solid var(--gold);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
+    padding: 50px 40px 30px;
+    border-top: 2px solid rgba(245,200,0,0.3);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
   }
 
   .footer-brand {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
+    font-size: 24px;
     letter-spacing: 1px;
+    margin-bottom: 14px;
   }
-
   .footer-brand span { color: var(--gold); }
 
-  .footer-copy {
+  .footer-tagline {
     font-size: 13px;
     color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 240px;
   }
 
-  .footer-links {
+  .footer-col-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+  }
+
+  .footer-links-list {
+    list-style: none;
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .footer-links a {
+  .footer-links-list a {
     color: var(--text-muted);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 14px;
     transition: color 0.2s;
   }
+  .footer-links-list a:hover { color: var(--gold); }
 
-  .footer-links a:hover { color: var(--gold); }
+  .footer-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-contact-item:hover { color: var(--white); }
+  .footer-contact-item svg {
+    stroke: var(--gold);
+    fill: none;
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+    flex-shrink: 0;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 10px;
+  }
+
+  .footer-social a {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .footer-social a:hover { border-color: var(--gold); background: rgba(245,200,0,0.1); }
+  .footer-social a svg { stroke: var(--text-muted); fill: none; width: 15px; height: 15px; stroke-width: 2; }
+  .footer-social a:hover svg { stroke: var(--gold); }
 
   /* ===== WHATSAPP FLOAT ===== */
   .whatsapp-float {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 28px;
+    right: 28px;
     z-index: 999;
-    width: 60px;
-    height: 60px;
+    width: 62px; height: 62px;
     background: #25D366;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 24px rgba(37,211,102,0.45);
+    box-shadow: 0 6px 28px rgba(37,211,102,0.5);
     text-decoration: none;
     transition: all 0.3s;
-    animation: pulse 2.5s infinite;
+    animation: wpPulse 2.5s infinite;
   }
 
-  .whatsapp-float:hover { transform: scale(1.12); box-shadow: 0 10px 35px rgba(37,211,102,0.55); }
+  @keyframes wpPulse {
+    0%, 100% { box-shadow: 0 6px 28px rgba(37,211,102,0.5); }
+    50% { box-shadow: 0 6px 40px rgba(37,211,102,0.75), 0 0 0 12px rgba(37,211,102,0.1); }
+  }
 
+  .whatsapp-float:hover { transform: scale(1.12) translateY(-2px); }
   .whatsapp-float svg { width: 30px; height: 30px; fill: white; }
+
+  /* ===== MOBILE MENU ===== */
+  .mobile-menu {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 280px;
+    background: var(--gray-dark);
+    border-left: 1px solid rgba(245,200,0,0.2);
+    z-index: 200;
+    padding: 80px 32px 32px;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mobile-menu.open { transform: translateX(0); }
+
+  .mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+  }
+
+  .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+  .mobile-menu a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: block;
+    transition: color 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+
+  .mobile-menu .btn-primary {
+    margin-top: 24px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .mobile-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px; height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 24px;
+    transition: color 0.2s;
+  }
+
+  .mobile-close:hover { color: var(--gold); }
 
   /* ===== ANIMATIONS ===== */
   @keyframes fadeInUp {
@@ -973,15 +1587,12 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 6px 24px rgba(37,211,102,0.45); }
-    50% { box-shadow: 0 6px 36px rgba(37,211,102,0.7); }
-  }
-
   /* ===== RESPONSIVE ===== */
   @media (max-width: 900px) {
     nav { padding: 14px 20px; }
-
+    nav.scrolled { padding: 10px 20px; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
     section { padding: 70px 20px; }
 
     .hero-content {
@@ -990,186 +1601,210 @@
       gap: 32px;
     }
 
-    .hero-stats {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    .stat-box.full { grid-column: span 2; }
 
-    .sobre-grid,
-    .martelinho-inner,
-    .localizacao-inner {
+    .sobre-grid, .martelinho-inner, .localizacao-inner {
       grid-template-columns: 1fr;
       gap: 40px;
     }
 
-    .sobre-img { height: 300px; }
-    .sobre-img-badge { right: 10px; bottom: -15px; }
+    .sobre-img { height: 320px; }
+    .sobre-img-badge { right: 10px; bottom: -16px; }
 
-    .horario-grid {
-      grid-template-columns: 1fr;
+    .steps-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
     }
 
+    .steps-grid::before { display: none; }
+
+    .horario-grid { grid-template-columns: 1fr; }
     .horario-divider { display: none; }
+    .horario-card { padding: 36px 24px; }
 
-    footer {
-      flex-direction: column;
-      text-align: center;
-      padding: 30px 20px;
-    }
+    .footer-top { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; }
 
-    .hero-title { font-size: 52px; }
-
-    #martelinho { padding: 60px 20px; }
-    #horario { padding: 60px 20px; }
-    #localizacao { padding: 60px 20px; }
-    #cta { padding: 70px 20px; }
+    #martelinho { padding: 70px 20px; }
+    #horario { padding: 70px 20px; }
+    #localizacao { padding: 70px 20px; }
+    #faq { padding: 70px 20px; }
+    #cta { padding: 80px 20px; }
   }
 
   @media (max-width: 480px) {
-    #hero {
-      min-height: auto;
-      padding-bottom: 0;
-    }
-
-    .hero-content {
-      padding: 96px 20px 50px;
-      gap: 28px;
-    }
-
-    .hero-title {
-      font-size: 44px;
-    }
-
-    .hero-subtitle {
-      font-size: 15px;
-      margin-top: 14px;
-    }
-
-    .hero-actions {
-      flex-direction: column;
-      margin-top: 24px;
-      gap: 12px;
-    }
-
-    .btn-primary, .btn-secondary {
-      justify-content: center;
-      width: 100%;
-    }
-
-    .hero-stats {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 0;
-    }
-
-    .stat-box {
-      padding: 18px 10px;
-    }
-
-    .stat-number {
-      font-size: 32px;
-    }
-
-    .stat-label {
-      font-size: 10px;
-    }
-
-    .horario-card { padding: 30px 20px; }
+    #hero { min-height: auto; }
+    .hero-title { font-size: 48px; }
+    .hero-subtitle { font-size: 15px; }
+    .hero-actions { flex-direction: column; gap: 12px; }
+    .btn-primary, .btn-secondary { justify-content: center; width: 100%; }
+    .hero-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-box { padding: 20px 12px; }
+    .stat-number { font-size: 36px; }
+    .stat-label { font-size: 10px; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .martelinho-features { grid-template-columns: 1fr; }
+    .sobre-list { grid-template-columns: 1fr; }
+    footer { padding: 40px 20px 24px; }
+    .slider-wrapper img { height: 280px; }
   }
 </style>
 </head>
 <body>
 
+<!-- MOBILE OVERLAY & MENU -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-close" onclick="closeMobileMenu()">&#x2715;</div>
+  <a href="#servicos" onclick="closeMobileMenu()">Serviços</a>
+  <a href="#processo" onclick="closeMobileMenu()">Como Funciona</a>
+  <a href="#sobre" onclick="closeMobileMenu()">Sobre</a>
+  <a href="#martelinho" onclick="closeMobileMenu()">Martelinho</a>
+  <a href="#avaliacoes" onclick="closeMobileMenu()">Avaliações</a>
+  <a href="#localizacao" onclick="closeMobileMenu()">Localização</a>
+  <a href="https://wa.me/5547997523426?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento." target="_blank" class="btn-primary" onclick="closeMobileMenu()">
+    Pedir Orçamento
+  </a>
+</div>
+
 <!-- NAV -->
-<nav>
+<nav id="mainNav">
   <div class="nav-logo">
     <img src="data:image/jpeg;base64,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F2VF4ypu6b3B+aeMqX+e9wfmgrcFejVbxc6Xum9wfmgudN/Pe4P1kFyC5HNW7xrS903uD81z42pe6b3B+siFyC5VuF3o8cp/qx+snjejzyn+rH6yJ6uOCu2Crb43os8p/q2/muReaIdlR9W380Orm0HC5Vs8c0fdUfVt/WTxzRd1R9W39ZBdEVr8c0XdUfVt/WXIvVEOyo+rb+sguXxihIHaFbfHVDnzaj6tv6y48c0PoT/Vt/WQXTI71xkd6t3juiz5k/1bf1lx46oTzbUfVt/WQXNFbTeqHPm1H1bf1lx46ofQqPq2/rILmitnjqh7qkf8Df1k8c0PdVe4380FzRWzxzQ/+J+rb+aeOaH/AMT9W380FzQ8FbPHND/4n3G/muPHND3VPuN/NBdMhMjvVs8c0Po1PuN/WXHjmgxwbUj2Mb+sguiK1+OaHuqfnjb+aG80J+LUfVt/WQXRFa/HND6NR7g/Nc+OaH0an3R+aC5orX45oe6q90fmnjmh9Gp90fmh1dEVr8c0Po1H1bf1k8c0PdVe4380OrpnguN4Z5K2eOaHOcVXuN/NdvHVB3VPuN/WQXIkIrZ46oe6p9xv6yeOqH0aj6tv6yC5Egdq5yO9WzxzQ+jUfVt/WQ3mh7G1H1bf1kFyJC4Vu8dUPdU+439ZcG80Po1HuD9ZBclwOfFW7xzQ+jUe4P1k8c0Xo1HuD9ZBcCVwrf44os+bP7g/WXBu9Efiz+4P1kFwJHeupVB43o+WJ/qx+suPG1HnlP7g/NELhkd66kjvVD42pO6f6tv5rjxrSceE5/4B+aJVxXVx5g8FQ+NKX0ZvdH5obpSkebN7o/WQhVlcFUZuVL6M3uj808ZUvdL7g/NEKo81weSpTcqbumP/AAj8118YU/dL7o/NEqsLgkcsqlNfTd0vuj81wa+n7pfdH5ohUE54LhU/h1P3S+6PzTw6D+d90fmgqFyqbw6Dul90fmnh8H879A/NBbEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERB//Z" alt="Jardes Martelinho de Ouro">
   </div>
-  <a href="https://wa.me/5547997523426?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento." target="_blank" class="nav-cta">📲 Pedir Orçamento</a>
+  <ul class="nav-links">
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#processo">Como Funciona</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#martelinho">Martelinho</a></li>
+    <li><a href="#avaliacoes">Avaliações</a></li>
+    <li><a href="#localizacao">Localização</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://wa.me/5547997523426?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento." target="_blank" class="nav-cta">📲 Pedir Orçamento</a>
+    <div class="hamburger" id="hamburger" onclick="openMobileMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
 </nav>
 
 <!-- HERO -->
 <section id="hero">
   <div class="hero-bg-img"></div>
-  <div class="hero-bg"></div>
-  <div class="hero-stripe"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-accent-line"></div>
   <div class="hero-content">
     <div>
-      <div class="hero-badge">⭐ Referência em Brusque desde 2016</div>
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Referência em Brusque desde 2016
+      </div>
       <h1 class="hero-title">
         TUDO QUE SEU<br>
         CARRO<br>
         <span class="gold">PRECISA</span>
       </h1>
+      <div class="hero-tagline">
+        <div class="hero-tagline-line"></div>
+        <div class="hero-tagline-text">Qualidade & Confiança</div>
+        <div class="hero-tagline-line"></div>
+      </div>
       <p class="hero-subtitle">Especialistas em Martelinho de Ouro, Latoaria e Pintura. Recuperamos a aparência do seu veículo sem comprometer a originalidade de fábrica.</p>
       <div class="hero-actions">
         <a href="https://wa.me/5547997523426?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento." target="_blank" class="btn-primary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
           Solicitar Orçamento
         </a>
-        <a href="tel:4733519470" class="btn-secondary">📞 (47) 3351-9470</a>
+        <a href="tel:4733519470" class="btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 10.9 19.79 19.79 0 011.05 2.3 2 2 0 013 .11h3a2 2 0 012 1.72c.13 1 .36 2 .69 2.94a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.13-1.13a2 2 0 012.11-.45c.94.33 1.93.56 2.94.69a2 2 0 011.72 2.02z"/></svg>
+          (47) 3351-9470
+        </a>
       </div>
     </div>
-    <div class="hero-stats">
-      <div class="stat-box">
-        <div class="stat-number">+8</div>
-        <div class="stat-label">Anos de Experiência</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number">⭐5</div>
-        <div class="stat-label">Avaliação Google</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number">24h</div>
-        <div class="stat-label">Retoque Rápido</div>
+    <div class="hero-right">
+      <div class="hero-stats">
+        <div class="stat-box">
+          <div class="stat-number" data-count="8">0</div>
+          <div class="stat-label">Anos de Experiência</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">⭐5.0</div>
+          <div class="stat-label">Avaliação Google</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" data-count="500">0</div>
+          <div class="stat-label">Clientes Atendidos</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number">24h</div>
+          <div class="stat-label">Orçamento Rápido</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-bar-track" id="trustTrack">
+    <div class="trust-bar-item"><span>🔨</span> Martelinho de Ouro</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>🎨</span> Pintura Automotiva</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>⭐</span> 5 Estrelas Google</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>🏗️</span> Latoaria Profissional</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>✨</span> Polimento & Espelhamento</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>⚡</span> Carros Elétricos</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>🔨</span> Martelinho de Ouro</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>🎨</span> Pintura Automotiva</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>⭐</span> 5 Estrelas Google</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>🏗️</span> Latoaria Profissional</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>✨</span> Polimento & Espelhamento</div>
+    <div class="trust-bar-dot"></div>
+    <div class="trust-bar-item"><span>⚡</span> Carros Elétricos</div>
+    <div class="trust-bar-dot"></div>
+  </div>
+</div>
+
 <!-- ANTES & DEPOIS -->
 <section id="antes-depois">
   <div class="section-inner">
-    <div class="antes-depois-header">
+    <div class="antes-depois-header reveal">
       <div class="section-label" style="justify-content:center;">Resultado Real</div>
       <h2 class="section-title">ANTES <span class="gold">&</span> DEPOIS</h2>
-      <p style="color:var(--text-muted); font-size:15px; margin-top:12px;">Arraste para ver a transformação — trabalho real da nossa oficina</p>
+      <p style="color:var(--text-muted);font-size:15px;margin-top:12px;">Arraste para ver a transformação — trabalho real da nossa oficina</p>
     </div>
-
-    <div class="slider-wrapper" id="sliderWrapper">
-      <!-- ANTES = imagem de fundo (lado esquerdo, visível por baixo) -->
+    <div class="slider-wrapper reveal" id="sliderWrapper">
       <img src="https://iili.io/q6fSfP2.md.jpg" alt="Antes — carro danificado" draggable="false">
-
-      <!-- DEPOIS = camada sobreposta à DIREITA -->
       <div class="slider-before" id="sliderBefore">
         <img src="https://iili.io/q6f4RmF.md.jpg" alt="Depois — carro recuperado" draggable="false">
       </div>
-
-      <!-- Linha divisora + handle -->
       <div class="slider-handle" id="sliderHandle">
         <div class="slider-btn">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8 5l-7 7 7 7M16 5l7 7-7 7"/>
-          </svg>
+          <svg viewBox="0 0 24 24"><path d="M8 5l-7 7 7 7M16 5l7 7-7 7"/></svg>
         </div>
       </div>
-
-      <!-- Label ANTES (esquerda) -->
       <div class="slider-label label-antes">
         <div class="label-dot dot-red"></div>
         <span>ANTES</span>
       </div>
-
-      <!-- Label DEPOIS (direita) -->
       <div class="slider-label label-depois">
         <div class="label-dot dot-green"></div>
         <span>DEPOIS</span>
       </div>
     </div>
-
-    <div class="slider-hint">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M8 5l-7 7 7 7M16 5l7 7-7 7"/></svg>
-      Arraste para comparar
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M8 5l-7 7 7 7M16 5l7 7-7 7"/></svg>
+    <div class="slider-hint reveal">
+      ← Arraste para comparar →
     </div>
   </div>
 </section>
@@ -1178,54 +1813,105 @@
 <section id="servicos">
   <div class="section-inner">
     <div class="services-header">
-      <div>
+      <div class="reveal-left">
         <div class="section-label">O Que Fazemos</div>
         <h2 class="section-title">NOSSOS <span class="gold">SERVIÇOS</span></h2>
       </div>
-      <p style="color:var(--text-muted); max-width:380px; font-size:15px; line-height:1.7;">
+      <p class="reveal-right" style="color:var(--text-muted);max-width:360px;font-size:15px;line-height:1.75;">
         Atendimento completo para recuperação do seu veículo — com qualidade profissional e agilidade.
       </p>
     </div>
     <div class="services-grid">
-      <div class="service-card">
-        <div class="service-icon">🔨</div>
+      <div class="service-card reveal">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        </div>
         <div class="service-name">Martelinho de Ouro</div>
-        <p class="service-desc">Técnica de reparo que remove amassados sem pintura, preservando a originalidade de fábrica do seu veículo.</p>
+        <p class="service-desc">Técnica de reparo que remove amassados sem pintura, preservando a originalidade de fábrica do seu veículo com perfeição.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">🏗️</div>
+      <div class="service-card reveal" style="transition-delay:0.1s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
         <div class="service-name">Latoaria</div>
-        <p class="service-desc">Reparo e substituição de chapas metálicas danificadas por acidentes ou desgaste, com perfeição técnica.</p>
+        <p class="service-desc">Reparo e substituição de chapas metálicas danificadas por acidentes ou desgaste, com perfeição técnica e acabamento impecável.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">🎨</div>
+      <div class="service-card reveal" style="transition-delay:0.2s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M20.188 10.934c.326.179.583.446.74.77.157.326.212.693.157 1.05-.056.358-.22.687-.47.946-.25.258-.576.434-.93.506l-2.35.466-.467 2.35a1.97 1.97 0 01-.506.93 1.97 1.97 0 01-.946.47 1.966 1.966 0 01-1.05-.157 1.966 1.966 0 01-.77-.74L12 15.8l-1.586 1.775a1.97 1.97 0 01-.77.74 1.97 1.97 0 01-1.05.157 1.97 1.97 0 01-.946-.47 1.97 1.97 0 01-.47-.946l-.466-2.35-2.35-.466a1.97 1.97 0 01-.93-.506 1.97 1.97 0 01-.47-.946 1.97 1.97 0 01.157-1.05c.157-.324.414-.591.74-.77L5.6 12 3.803 10.414a1.966 1.966 0 01-.74-.77 1.966 1.966 0 01-.157-1.05c.056-.358.22-.687.47-.946.25-.258.576-.434.93-.506l2.35-.466.467-2.35a1.97 1.97 0 01.506-.93 1.97 1.97 0 01.946-.47c.358-.056.727-.002 1.05.157.326.157.591.414.77.74L12 5.6l1.586-1.775c.179-.326.444-.583.77-.74.326-.159.692-.213 1.05-.157.358.056.696.212.946.47.25.258.414.588.47.946l.466 2.35 2.35.466c.354.072.68.248.93.506.25.259.414.588.47.946z"/></svg>
+        </div>
         <div class="service-name">Pintura</div>
-        <p class="service-desc">Pintura automotiva com combinação exata da cor original do seu carro — acabamento impecável.</p>
+        <p class="service-desc">Pintura automotiva com combinação exata da cor original do seu carro — acabamento impecável e durável.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">✏️</div>
+      <div class="service-card reveal" style="transition-delay:0.3s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
         <div class="service-name">Retoques</div>
-        <p class="service-desc">Correção de pequenos riscos e imperfeições com precisão, deixando o veículo como novo.</p>
+        <p class="service-desc">Correção de pequenos riscos e imperfeições com precisão cirúrgica, deixando o veículo como saiu da fábrica.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">✨</div>
+      <div class="service-card reveal" style="transition-delay:0.4s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20A14.5 14.5 0 0012 2z"/><path d="M2 12h20"/></svg>
+        </div>
         <div class="service-name">Polimento</div>
         <p class="service-desc">Polimento profissional que recupera o brilho original e protege a pintura contra manchas e riscos superficiais.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">🪞</div>
+      <div class="service-card reveal" style="transition-delay:0.5s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
         <div class="service-name">Espelhamento</div>
-        <p class="service-desc">Processo avançado que deixa a lataria com brilho de espelho — visual premium e proteção duradoura.</p>
+        <p class="service-desc">Processo avançado que deixa a lataria com brilho de espelho — visual premium e proteção duradoura garantida.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">🔄</div>
+      <div class="service-card reveal" style="transition-delay:0.6s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        </div>
         <div class="service-name">Restauração</div>
         <p class="service-desc">Recuperação completa de veículos com danos severos, devolvendo aparência e estrutura originais.</p>
       </div>
-      <div class="service-card">
-        <div class="service-icon">⚡</div>
+      <div class="service-card reveal" style="transition-delay:0.7s">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
         <div class="service-name">Carros Elétricos</div>
         <p class="service-desc">Atendimento especializado em veículos elétricos, com latoaria e pintura adaptadas às especificações de cada modelo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section id="processo">
+  <div class="section-inner">
+    <div class="processo-header reveal">
+      <div class="section-label" style="justify-content:center;">Simples e Rápido</div>
+      <h2 class="section-title">COMO <span class="gold">FUNCIONA</span></h2>
+      <p style="color:var(--text-muted);font-size:15px;margin-top:12px;max-width:480px;margin-left:auto;margin-right:auto;">
+        Do contato até a entrega, o processo é simples, transparente e sem surpresas
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item reveal" style="transition-delay:0s">
+        <div class="step-num">1</div>
+        <div class="step-title">Entre em Contato</div>
+        <p class="step-desc">Mande uma mensagem no WhatsApp com fotos do seu veículo para agilizar o processo.</p>
+      </div>
+      <div class="step-item reveal" style="transition-delay:0.15s">
+        <div class="step-num">2</div>
+        <div class="step-title">Orçamento Grátis</div>
+        <p class="step-desc">Avaliamos os danos e enviamos um orçamento transparente, sem compromisso.</p>
+      </div>
+      <div class="step-item reveal" style="transition-delay:0.3s">
+        <div class="step-num">3</div>
+        <div class="step-title">Serviço Realizado</div>
+        <p class="step-desc">Nossa equipe executa o serviço com técnica e equipamentos de última geração.</p>
+      </div>
+      <div class="step-item reveal" style="transition-delay:0.45s">
+        <div class="step-num">4</div>
+        <div class="step-title">Carro Entregue</div>
+        <p class="step-desc">Seu veículo devolvido com a aparência original, como se nada tivesse acontecido.</p>
       </div>
     </div>
   </div>
@@ -1235,26 +1921,44 @@
 <section id="sobre">
   <div class="section-inner">
     <div class="sobre-grid">
-      <div class="sobre-img-wrapper">
+      <div class="sobre-img-wrapper reveal-left">
         <div class="sobre-img"></div>
         <div class="sobre-img-badge">
           <div class="big">+8</div>
           <div class="small">Anos no<br>Mercado</div>
         </div>
       </div>
-      <div class="sobre-content">
+      <div class="sobre-content reveal-right">
         <div class="section-label">Quem Somos</div>
         <h2 class="section-title">REFERÊNCIA EM <span class="gold">BRUSQUE</span></h2>
         <p>Desde 2016, o Jardes Martelinho de Ouro é referência em Brusque/SC para quem precisa recuperar o carro com qualidade, agilidade e confiança.</p>
         <p>Nossa equipe altamente capacitada utiliza as melhores técnicas e equipamentos do mercado para garantir que o seu veículo saia igual ao original — seja por martelinho de ouro, latoaria, pintura ou polimento.</p>
         <p><strong>Tudo que o seu carro precisa em um só lugar.</strong></p>
         <ul class="sobre-list">
-          <li>Equipe especializada</li>
-          <li>Carros elétricos</li>
-          <li>Sem comprometer a pintura</li>
-          <li>Orçamento sem compromisso</li>
-          <li>Atendimento ágil</li>
-          <li>Desde 2016</li>
+          <li>
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Equipe especializada
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Carros elétricos
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Pintura original preservada
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Orçamento sem compromisso
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Atendimento ágil
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Desde 2016 no mercado
+          </li>
         </ul>
       </div>
     </div>
@@ -1264,42 +1968,55 @@
 <!-- MARTELINHO DESTAQUE -->
 <section id="martelinho">
   <div class="martelinho-inner">
-    <div>
+    <div class="reveal-left">
       <div class="section-label">Técnica Exclusiva</div>
       <h2 class="section-title">O QUE É O MARTELINHO DE OURO?</h2>
       <p>O martelinho de ouro é uma técnica de reparo que elimina pequenos amassados, batidas leves e danos de chuva de granizo <strong>sem uso de massa, lixa ou tinta.</strong></p>
       <p>Isso preserva completamente a pintura original de fábrica do seu veículo — e na maioria dos casos é mais rápido e econômico do que o método tradicional.</p>
-      <p>Afinal, é possível recuperar a lataria do seu veículo sem comprometer a sua originalidade? <strong>Sim! E o Jardes é especialista nisso.</strong></p>
+      <div class="martelinho-features">
+        <div class="martelinho-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Sem massa ou tinta
+        </div>
+        <div class="martelinho-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Pintura original
+        </div>
+        <div class="martelinho-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Mais econômico
+        </div>
+        <div class="martelinho-feature">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Resultado perfeito
+        </div>
+      </div>
       <a href="https://wa.me/5547997523426?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20martelinho%20de%20ouro." target="_blank" class="btn-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
         Falar no WhatsApp
       </a>
     </div>
-    <div class="martelinho-img"></div>
+    <div class="martelinho-img reveal-right"></div>
   </div>
 </section>
 
 <!-- HORÁRIO -->
 <section id="horario">
   <div class="horario-inner">
-    <div class="section-label" style="justify-content:center;">Quando Atendemos</div>
-    <h2 class="section-title" style="text-align:center;">HORÁRIO DE <span class="gold">FUNCIONAMENTO</span></h2>
-    <div class="horario-card">
+    <div class="reveal">
+      <div class="section-label" style="justify-content:center;">Quando Atendemos</div>
+      <h2 class="section-title" style="text-align:center;">HORÁRIO DE <span class="gold">FUNCIONAMENTO</span></h2>
+    </div>
+    <div class="horario-card reveal">
       <div class="horario-grid">
         <div>
           <div class="horario-day">Segunda à Quinta</div>
-          <div class="horario-time">
-            07:30 às 12:00<br>
-            13:30 às 18:00
-          </div>
+          <div class="horario-time">07:30 às 12:00<br>13:30 às 18:00</div>
         </div>
         <div class="horario-divider"></div>
         <div>
           <div class="horario-day">Sexta-feira</div>
-          <div class="horario-time">
-            07:30 às 12:00<br>
-            13:30 às 17:30
-          </div>
+          <div class="horario-time">07:30 às 12:00<br>13:30 às 17:30</div>
         </div>
       </div>
       <div style="text-align:center;">
@@ -1309,21 +2026,88 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-inner">
+    <div class="faq-header reveal">
+      <div class="section-label" style="justify-content:center;">Tire suas Dúvidas</div>
+      <h2 class="section-title">PERGUNTAS <span class="gold">FREQUENTES</span></h2>
+    </div>
+    <div class="reveal">
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          O martelinho de ouro serve para qualquer tipo de amassado?
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            A técnica do martelinho de ouro é indicada para amassados onde a pintura não foi comprometida. Ela funciona muito bem em batidas leves, danos por granizo e amassados sem dobras acentuadas. Caso a pintura esteja danificada, pode ser necessário combinar com outros serviços como pintura ou retoque.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          Quanto tempo leva o serviço de martelinho de ouro?
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            O tempo varia de acordo com a quantidade e profundidade dos danos. Casos simples podem ser resolvidos no mesmo dia, enquanto danos mais extensos — como chuva de granizo — podem levar alguns dias. No orçamento já informamos o prazo estimado de entrega.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          O serviço cobre danos por granizo?
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Sim! O martelinho de ouro é uma das melhores soluções para danos causados por granizo. Como a técnica remove os amassados sem pintura, o resultado é praticamente invisível e preserva 100% a originalidade do veículo.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          Vocês atendem carros elétricos?
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Sim! Possuímos experiência e equipamentos adequados para atender veículos elétricos e híbridos. Os serviços de latoaria e pintura são adaptados às especificações de cada modelo, garantindo um resultado seguro e de qualidade.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          O orçamento é gratuito e sem compromisso?
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Sim, totalmente! Basta entrar em contato pelo WhatsApp com fotos do seu veículo. Analisamos os danos e enviamos um orçamento detalhado sem nenhum custo e sem compromisso de sua parte.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- AVALIAÇÕES -->
 <section id="avaliacoes">
   <div class="section-inner">
-    <div class="avaliacoes-header">
+    <div class="avaliacoes-header reveal">
       <div class="google-rating">
         <span class="google-g">G</span>
         <span class="stars">★★★★★</span>
         <strong>5.0</strong>
-        <span style="color:var(--text-muted); font-size:14px;">no Google</span>
+        <span style="color:var(--text-muted);font-size:14px;">no Google</span>
       </div>
       <div class="section-label" style="justify-content:center;">Depoimentos</div>
       <h2 class="section-title">O QUE <span class="gold">CLIENTES</span><br>DIZEM SOBRE NÓS</h2>
     </div>
     <div class="reviews-grid">
-      <div class="review-card">
+      <div class="review-card reveal">
         <div class="review-top">
           <div class="reviewer-avatar">M</div>
           <div>
@@ -1335,7 +2119,7 @@
         <div class="review-text">Serviço impecável! Meu carro tinha um amassado feio na porta e saiu como se nunca tivesse acontecido. Profissionais muito atenciosos e honestos no orçamento. Super recomendo!</div>
         <div class="google-badge"><span class="google-g">G</span> Avaliação Google</div>
       </div>
-      <div class="review-card">
+      <div class="review-card reveal" style="transition-delay:0.15s">
         <div class="review-top">
           <div class="reviewer-avatar" style="background:#4A90E2;">A</div>
           <div>
@@ -1347,7 +2131,7 @@
         <div class="review-text">Fiz o polimento e o espelhamento. O resultado ficou incrível, meu carro parece novo! Atendimento excelente, preço justo e entregaram antes do prazo. Voltarei com certeza.</div>
         <div class="google-badge"><span class="google-g">G</span> Avaliação Google</div>
       </div>
-      <div class="review-card">
+      <div class="review-card reveal" style="transition-delay:0.3s">
         <div class="review-top">
           <div class="reviewer-avatar" style="background:#E24A4A;">R</div>
           <div>
@@ -1360,7 +2144,7 @@
         <div class="google-badge"><span class="google-g">G</span> Avaliação Google</div>
       </div>
     </div>
-    <div style="text-align:center; margin-top:40px;">
+    <div style="text-align:center;margin-top:44px;" class="reveal">
       <a href="https://www.google.com/maps/place//data=!4m3!3m2!1s0x94df47a3ee6f306f:0x78c3af9a28240df2!12e1" target="_blank" class="btn-secondary" style="display:inline-flex;">
         Ver todas as avaliações no Google ↗
       </a>
@@ -1371,28 +2155,34 @@
 <!-- LOCALIZAÇÃO -->
 <section id="localizacao">
   <div class="localizacao-inner">
-    <div class="localizacao-info">
+    <div class="localizacao-info reveal-left">
       <div class="section-label">Onde Estamos</div>
       <h2 class="section-title">NOSSA <span class="gold">LOCALIZAÇÃO</span></h2>
       <div class="info-item">
-        <div class="info-icon">📍</div>
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
         <div>
           <div class="info-label">Endereço</div>
           <div class="info-value">Av. Primeiro de Maio, nº 812<br>Bairro Primeiro de Maio<br>Brusque / SC</div>
         </div>
       </div>
       <div class="info-item">
-        <div class="info-icon">📞</div>
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 10.9 19.79 19.79 0 011.05 2.3 2 2 0 013 .11h3a2 2 0 012 1.72c.13 1 .36 2 .69 2.94a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.13-1.13a2 2 0 012.11-.45c.94.33 1.93.56 2.94.69a2 2 0 011.72 2.02z"/></svg>
+        </div>
         <div>
           <div class="info-label">Telefones</div>
           <div class="info-value">
-            <a href="tel:4733519470" style="color:inherit;text-decoration:none;">(47) 3351-9470</a><br>
-            <a href="https://wa.me/5547997523426" target="_blank" style="color:var(--gold);text-decoration:none;">📲 (47) 99752-3426</a>
+            <a href="tel:4733519470">(47) 3351-9470</a><br>
+            <a href="https://wa.me/5547997523426" target="_blank" style="color:var(--gold);">📲 (47) 99752-3426</a>
           </div>
         </div>
       </div>
       <div class="info-item">
-        <div class="info-icon">🕐</div>
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
         <div>
           <div class="info-label">Horário</div>
           <div class="info-value">Seg–Qui: 07:30–12h / 13:30–18h<br>Sex: 07:30–12h / 13:30–17:30h</div>
@@ -1402,11 +2192,11 @@
         📲 Agendar Visita
       </a>
     </div>
-    <div class="map-wrapper">
+    <div class="map-wrapper reveal-right">
       <iframe
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3565.2!2d-48.9120!3d-27.0980!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94df47a3ee6f306f%3A0x78c3af9a28240df2!2sJardes%20Martelinho%20de%20Ouro!5e0!3m2!1spt-BR!2sbr!4v1711234567890"
         width="100%"
-        height="420"
+        height="440"
         style="border:0;"
         allowfullscreen=""
         loading="lazy"
@@ -1418,22 +2208,65 @@
 
 <!-- CTA FINAL -->
 <section id="cta">
-  <h2 class="section-title">PRONTO PARA RECUPERAR<br>SEU CARRO?</h2>
-  <p>Solicite agora um orçamento gratuito e sem compromisso. Nossa equipe responde rapidamente pelo WhatsApp.</p>
-  <a href="https://wa.me/5547997523426?text=Olá!%20Vi%20o%20site%20e%20gostaria%20de%20um%20orçamento." target="_blank" class="btn-primary">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-    Falar no WhatsApp Agora
-  </a>
+  <h2 class="section-title reveal">PRONTO PARA RECUPERAR<br>SEU CARRO?</h2>
+  <p class="reveal">Solicite agora um orçamento gratuito e sem compromisso. Nossa equipe responde rapidamente pelo WhatsApp.</p>
+  <div class="cta-buttons reveal">
+    <a href="https://wa.me/5547997523426?text=Olá!%20Vi%20o%20site%20e%20gostaria%20de%20um%20orçamento." target="_blank" class="btn-primary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Falar no WhatsApp Agora
+    </a>
+    <a href="tel:4733519470" class="btn-secondary">
+      📞 (47) 3351-9470
+    </a>
+  </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-brand">JARDES <span>MARTELINHO</span> DE OURO</div>
-  <div class="footer-copy">© 2025 Jardes Martelinho de Ouro — Brusque/SC</div>
-  <div class="footer-links">
-    <a href="#servicos">Serviços</a>
-    <a href="#sobre">Sobre</a>
-    <a href="#localizacao">Localização</a>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">JARDES <span>MARTELINHO</span> DE OURO</div>
+      <p class="footer-tagline">Especialistas em recuperação automotiva em Brusque/SC desde 2016. Qualidade e confiança que você pode ver.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Navegação</div>
+      <ul class="footer-links-list">
+        <li><a href="#servicos">Serviços</a></li>
+        <li><a href="#processo">Como Funciona</a></li>
+        <li><a href="#sobre">Sobre Nós</a></li>
+        <li><a href="#martelinho">Martelinho de Ouro</a></li>
+        <li><a href="#avaliacoes">Avaliações</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Contato</div>
+      <a href="tel:4733519470" class="footer-contact-item">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 10.9 19.79 19.79 0 011.05 2.3 2 2 0 013 .11h3a2 2 0 012 1.72c.13 1 .36 2 .69 2.94a2 2 0 01-.45 2.11L7.09 7.91a16 16 0 006 6l1.13-1.13a2 2 0 012.11-.45c.94.33 1.93.56 2.94.69a2 2 0 011.72 2.02z"/></svg>
+        (47) 3351-9470
+      </a>
+      <a href="https://wa.me/5547997523426" target="_blank" class="footer-contact-item">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        (47) 99752-3426
+      </a>
+      <a href="#" class="footer-contact-item">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Av. Primeiro de Maio, 812 — Brusque/SC
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Jardes Martelinho de Ouro — Todos os direitos reservados</div>
+    <div class="footer-social">
+      <a href="#" title="Instagram">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </a>
+      <a href="https://wa.me/5547997523426" target="_blank" title="WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      </a>
+      <a href="https://www.google.com/maps/place//data=!4m3!3m2!1s0x94df47a3ee6f306f:0x78c3af9a28240df2!12e1" target="_blank" title="Google Maps">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </a>
+    </div>
   </div>
 </footer>
 
@@ -1443,75 +2276,154 @@
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
   </svg>
 </a>
+
 <script>
-  // ===== BEFORE/AFTER SLIDER =====
-  // ANTES = fundo (visível à esquerda)
-  // DEPOIS = overlay que entra pela direita (sliderBefore div)
-  const wrapper  = document.getElementById('sliderWrapper');
-  const depoisEl = document.getElementById('sliderBefore');
-  const handle   = document.getElementById('sliderHandle');
+// ===== NAV SCROLL =====
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+  updateActiveNavLink();
+});
 
-  let dragging   = false;
-  let currentPct = 0.5;
+// ===== ACTIVE NAV LINK =====
+function updateActiveNavLink() {
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-links a');
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 140) current = s.getAttribute('id');
+  });
+  links.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+}
 
-  function applyPosition(pct) {
-    // pct = posição da linha divisória (0=left, 1=right)
-    // DEPOIS ocupa a fatia DIREITA: width = (1 - pct) * 100%
-    depoisEl.style.width = ((1 - pct) * 100) + '%';
-    handle.style.left    = (pct * 100) + '%';
+// ===== MOBILE MENU =====
+function openMobileMenu() {
+  document.getElementById('mobileMenu').classList.add('open');
+  document.getElementById('mobileOverlay').classList.add('open');
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('open');
+}
 
-    // img interna do DEPOIS sempre com largura total, ancorada à direita
-    const img = depoisEl.querySelector('img');
-    img.style.width = wrapper.offsetWidth + 'px';
-    img.style.right = '0';
-    img.style.left  = 'auto';
-
-    currentPct = pct;
-  }
-
-  function setPosition(clientX) {
-    const rect = wrapper.getBoundingClientRect();
-    let pct = (clientX - rect.left) / rect.width;
-    applyPosition(Math.min(Math.max(pct, 0.03), 0.97));
-  }
-
-  // Mantém largura correta ao redimensionar
-  new ResizeObserver(() => applyPosition(currentPct)).observe(wrapper);
-
-  // === INTRO: começa mostrando só ANTES, depois revela DEPOIS da direita até o centro ===
-  function introAnimation() {
-    const duration = 1400;
-    const start    = performance.now();
-    const from     = 0.97; // linha quase na direita → só ANTES visível
-    const to       = 0.50; // centro
-
-    function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
-
-    function tick(now) {
-      const t = Math.min((now - start) / duration, 1);
-      applyPosition(from + (to - from) * ease(t));
-      if (t < 1) requestAnimationFrame(tick);
+// ===== SCROLL REVEAL =====
+const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
     }
-    setTimeout(() => requestAnimationFrame(tick), 700);
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ===== COUNTER ANIMATION =====
+function animateCount(el, target, suffix) {
+  let start = 0;
+  const duration = 2000;
+  const increment = target / (duration / 16);
+  const timer = setInterval(() => {
+    start += increment;
+    if (start >= target) {
+      start = target;
+      clearInterval(timer);
+    }
+    el.textContent = (suffix || '') + Math.floor(start) + (target === 8 ? '+' : '+');
+  }, 16);
+}
+
+const counterEls = document.querySelectorAll('[data-count]');
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target;
+      const target = parseInt(el.dataset.count);
+      animateCount(el, target);
+      counterObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+counterEls.forEach(el => counterObserver.observe(el));
+
+// ===== PARTICLES =====
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = Math.random() * 3 + 1;
+  p.style.cssText = `
+    left: ${Math.random() * 100}%;
+    width: ${size}px;
+    height: ${size}px;
+    animation-duration: ${Math.random() * 8 + 6}s;
+    animation-delay: ${Math.random() * 5}s;
+  `;
+  particlesContainer.appendChild(p);
+}
+
+// ===== BEFORE/AFTER SLIDER =====
+const wrapper = document.getElementById('sliderWrapper');
+const depoisEl = document.getElementById('sliderBefore');
+const handle = document.getElementById('sliderHandle');
+
+let dragging = false;
+let currentPct = 0.5;
+
+function applyPosition(pct) {
+  depoisEl.style.width = ((1 - pct) * 100) + '%';
+  handle.style.left = (pct * 100) + '%';
+  const img = depoisEl.querySelector('img');
+  img.style.width = wrapper.offsetWidth + 'px';
+  img.style.right = '0';
+  img.style.left = 'auto';
+  currentPct = pct;
+}
+
+function setPosition(clientX) {
+  const rect = wrapper.getBoundingClientRect();
+  applyPosition(Math.min(Math.max((clientX - rect.left) / rect.width, 0.03), 0.97));
+}
+
+new ResizeObserver(() => applyPosition(currentPct)).observe(wrapper);
+
+function introAnimation() {
+  const duration = 1400;
+  const start = performance.now();
+  const from = 0.97, to = 0.50;
+  const ease = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    applyPosition(from + (to - from) * ease(t));
+    if (t < 1) requestAnimationFrame(tick);
   }
+  setTimeout(() => requestAnimationFrame(tick), 600);
+}
 
-  applyPosition(0.97); // estado inicial
+applyPosition(0.97);
 
-  const io = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) { introAnimation(); io.disconnect(); }
-  }, { threshold: 0.35 });
-  io.observe(wrapper);
+const io = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) { introAnimation(); io.disconnect(); }
+}, { threshold: 0.35 });
+io.observe(wrapper);
 
-  // Mouse
-  handle.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
-  window.addEventListener('mousemove', e => { if (dragging) setPosition(e.clientX); });
-  window.addEventListener('mouseup',   () => { dragging = false; });
-  wrapper.addEventListener('click',    e => setPosition(e.clientX));
+handle.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
+window.addEventListener('mousemove', e => { if (dragging) setPosition(e.clientX); });
+window.addEventListener('mouseup', () => { dragging = false; });
+wrapper.addEventListener('click', e => setPosition(e.clientX));
+handle.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive: false });
+window.addEventListener('touchmove', e => { if (dragging) setPosition(e.touches[0].clientX); }, { passive: true });
+window.addEventListener('touchend', () => { dragging = false; });
 
-  // Touch
-  handle.addEventListener('touchstart', e => { dragging = true; e.preventDefault(); }, { passive: false });
-  window.addEventListener('touchmove',  e => { if (dragging) setPosition(e.touches[0].clientX); }, { passive: true });
-  window.addEventListener('touchend',   () => { dragging = false; });
+// ===== FAQ =====
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
 </script>
 </body>
 </html>
